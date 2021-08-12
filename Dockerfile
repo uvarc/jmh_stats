@@ -35,7 +35,7 @@ RUN R -e "install.packages(c('shiny','shinythemes','shinybusy','dplyr','readxl',
 ## GITHUB
 #RUN R -e "devtools::install_github('sqjin/CellChat')"
 ## BIOCONDUCTOR
-jjRUN R -e "BiocManager::install('rDGIdb')"
+##RUN R -e "BiocManager::install('rDGIdb')"
 # Copy configuration files into the Docker image
 COPY shiny-server.conf /etc/shiny-server/shiny-server.conf
 COPY shiny-server.sh /usr/bin/shiny-server.sh
