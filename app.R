@@ -11,8 +11,11 @@ ui <- fluidPage(
             #implementing radio buttons       
             radioButtons("p", "Select type of information to view:",
                          list("Consultations"='a',
+                              "Office Hour Attendees"='f',
                               "Rivanna Allocation Requests"='b', 
-                              "Ivy Users"='c', 
+                              "Rivanna Usage: Core Hours"='g',
+                              "New Rivanna Researchers"='h',
+                              "Ivy Researchers"='c', 
                               "Ivy Projects"='e',
                               "Storage Usage"='d')), 
 
@@ -39,7 +42,8 @@ gen_pie_chart <- function(filename){
                        "VPR/VPAT" = 11, 
                        NUR = 12,
                        BATT = 13,
-                       ARCH = 14
+                       ARCH = 14,
+                       MC = 15
     )
     
     
@@ -56,7 +60,8 @@ gen_pie_chart <- function(filename){
                      "VP/VPAT", 
                      "NUR",
                      "BATT",
-                     "ARCH"
+                     "ARCH",
+                     "MC"
     )
     all_colors <- c("#FFE699",
                     "#9DC3E6", 
@@ -71,7 +76,8 @@ gen_pie_chart <- function(filename){
                     "#FFFF00", 
                     "#C45911",
                     "#9999FF",
-                    "#F73B90")
+                    "#F73B90", 
+                    "#0066FF")
 
     raw_data <- read_excel(filename)
     
@@ -110,17 +116,43 @@ gen_pie_chart <- function(filename){
 
     percent <- paste0(percent, "%")
     cols <- all_colors[ndx]
-    month <- "July 2021"
-    titles <- list("Data/Consultations.xlsx"= paste0("Consultations by School\n",month, "\n"),
-                   "Data/Ivy_Users.xlsx"= "Ivy Users by School", 
-                   "Data/Ivy_Dist.xlsx" = paste0("Ivy Projects by School\n", month, "\n"),
+    #month <- "July 2021"
+
+    parts <- unlist(strsplit(filename, "-"))
+    file_type <- gsub("Data/", "", parts[1])
+    
+    date_type <- gsub(".xlsx", "", parts[2])
+    date_parts <- unlist(strsplit(date_type, "_"))
+    myYear <- date_parts[1]
+ 
+    monthNum <- as.numeric(date_parts[2])
+    myMonth <- month.name[monthNum]
+    month <- paste(myMonth, myYear)
+    titles <- list("Consultations"= paste0("Consultations by School\n",month, "\n"),
+                   "Office_Hours" = paste0("Office Hour Attendees by School\n",month, "\n"),
+                   "Ivy_Users"= paste("Ivy Researchers\n", month, "\n"),
+                   "Ivy_Dist" = paste0("Ivy Projects\n", month, "\n"),
                    "Data/Storage.xlsx"="Storage usage by School",
-                   "Data/Rivanna_Allocations.xlsx"="Rivanna Allocation Requests by School")
-    chart_title <- as.character(titles[filename])
+                   "Rivanna_Allocations"=paste0("Rivanna Allocation Requests\n", month, "\n"),
+                   "Core_Hours"= paste0("Rivanna Usage: Core Hours\n",month, "\n"),
+                   "New_Users"=paste0("New Rivanna Researchers\n", month, "\n"))
+    if (file_type == "Rivanna_Allocations" || 
+        file_type == "Core_Hours" ||
+        file_type == "New_Users" ||
+        file_type == "Ivy_Users" ||
+        file_type == "Ivy_Dist"  ||
+        file_type == "Office_Hours" ||
+        file_type == "Consultations"){
+        chart_title <- as.character(titles[file_type])    
+       
+    } else {
+        chart_title <- as.character(titles[filename]) 
+    }
+
     pie(values, labels = percent, radius = 1, clockwise=TRUE, 
         col=cols[1:N], 
         main=chart_title)
-    legend("topleft", schools[1:N], cex = 0.8,
+    legend("topleft", schools[1:N], cex = 0.6,
            fill = cols[1:N])
 }
     
@@ -132,20 +164,66 @@ server <- function(input, output) {
     output$distPlot <- renderPlot({ 
         #referring input p in ui.r as input$p   
         i <- 1
+        files <- list.files("Data", full.names = TRUE)
         if(input$p=='a'){ 
-            gen_pie_chart("Data/Consultations.xlsx")
+            ndx <- grep("Consultations", files)
+            if (length(ndx) > 0){
+                filename <- files[ndx[1]]
+                gen_pie_chart(filename)
+            }
+            #gen_pie_chart("Data/Consultations.xlsx")
          }
         if(input$p=='b'){ 
-            gen_pie_chart("Data/Rivanna_Allocations.xlsx")
+
+            ndx <- grep("Rivanna_Allocations", files)
+            if (length(ndx) > 0){
+                filename <- files[ndx[1]]
+                gen_pie_chart(filename)
+            }
+            #gen_pie_chart("Data/Rivanna_Allocations.xlsx")
         }     
         if(input$p=='c'){ 
-            gen_pie_chart("Data/Ivy_Users.xlsx")
+            ndx <- grep("Ivy_Users", files)
+            if (length(ndx) > 0){
+                filename <- files[ndx[1]]
+                gen_pie_chart(filename)
+            }
+            #gen_pie_chart("Data/Ivy_Users.xlsx")
         }     
         if(input$p=='d'){ 
             gen_pie_chart("Data/Storage.xlsx")
-        }   
+        }  
         if(input$p=='e'){ 
-            gen_pie_chart("Data/Ivy_Dist.xlsx")
+            ndx <- grep("Ivy_Dist", files)
+            if (length(ndx) > 0){
+                filename <- files[ndx[1]]
+                gen_pie_chart(filename)
+            }
+            #gen_pie_chart("Data/Ivy_Dist.xlsx")
+        }
+        if(input$p=='f'){ 
+            ndx <- grep("Office_Hours", files)
+            if (length(ndx) > 0){
+                filename <- files[ndx[1]]
+                gen_pie_chart(filename)
+            }
+            #gen_pie_chart("Data/Office_Hours.xlsx")
+        } 
+        if(input$p=='g'){ 
+            ndx <- grep("Core_Hours", files)
+            if (length(ndx) > 0){
+                filename <- files[ndx[1]]
+                gen_pie_chart(filename)
+            }
+            #gen_pie_chart("Data/Core_Hours.xlsx")
+        } 
+        if(input$p=='h'){ 
+            ndx <- grep("New_Users", files)
+            if (length(ndx) > 0){
+                filename <- files[ndx[1]]
+                gen_pie_chart(filename)
+            }
+            #gen_pie_chart("Data/New_Users.xlsx")
         } 
  
         }) 
