@@ -47,4 +47,4 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.DCOS_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DCOS_AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}        # also change '--mesage-body to same' for different containers
-        run: aws sqs send-message --queue-url 'https://queue.amazonaws.com/474683445819/dcos-refresh' --message-body '/uvarc/jmh_stats' || exit 1;
+        run: aws sqs send-message --queue-url 'https://queue.amazonaws.com/474683445819/dcos-refresh' --message-body '/uvarc/jmh-stats' || exit 1;
